@@ -1,0 +1,28 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Bo'sh — frontend so'rovlarni o'z domeniga (/api/...) yuboradi, ularni edge function proxy qiladi.
+  VITE_API_URL = ""
+
+# /api/* va /health → netlify/edge-functions/api-proxy.js (yo'llar funksiya ichidagi config.path da).
+
+# SPA: /deals/123 kabi yo'llarni to'g'ridan-to'g'ri ochganda index.html qaytsin.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"

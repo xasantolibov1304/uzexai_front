@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>Birja·AI — landing</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#F4F6F8}
+a{color:#0F766E}a:hover{color:#115E59}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid #14B8A6;outline-offset:2px}
+</style>
+</helmet>
+<div style="font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #0B1220; background: #F4F6F8; width: 100%">
+
+<header style="background: #0B1220; color: #FFFFFF">
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="#top" style="font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 20px; color: #FFFFFF; text-decoration: none; letter-spacing: -0.01em">Birja<span style="color: #14B8A6">·</span>AI</a>
+<nav style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 15px">
+<a href="#features" style="color: #C9D2DF; text-decoration: none">{{t.navFeatures}}</a>
+<a href="#how" style="color: #C9D2DF; text-decoration: none">{{t.navHow}}</a>
+<a href="#data" style="color: #C9D2DF; text-decoration: none">{{t.navData}}</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 12px">
+<div role="group" aria-label="Language" style="display: flex; gap: 2px; padding: 3px; border: 1px solid #2A3547; border-radius: 10px">
+<sc-for list="{{langs}}" as="l" hint-placeholder-count="3">
+<button type="button" onClick="{{l.pick}}" aria-pressed="{{l.pressed}}" style="{{l.style}}">{{l.label}}</button>
+</sc-for>
+</div>
+<a href="#ask" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 10px; background: #14B8A6; color: #0B1220; font-weight: 600; font-size: 15px; text-decoration: none">{{t.navCta}}</a>
+</div>
+</div>
+</header>
+
+<section id="top" style="background: #0B1220; color: #FFFFFF; padding: 56px 0 88px">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; flex-wrap: wrap; gap: 56px; align-items: flex-start">
+
+<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 24px; padding-top: 24px">
+<div style="align-self: flex-start; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #5EEAD4; border: 1px solid #1F4D4A; border-radius: 999px; padding: 6px 12px">{{t.badge}}</div>
+<h1 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 48px; line-height: 1.12; letter-spacing: -0.02em">{{t.h1}}</h1>
+<p style="margin: 0; font-size: 19px; line-height: 1.6; color: #B7C1D0; max-width: 540px">{{t.sub}}</p>
+<div style="display: flex; flex-wrap: wrap; gap: 28px; padding-top: 8px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; color: #FFFFFF">500 000</span><span style="font-size: 14px; color: #A8B3C4">{{t.sDeals}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; color: #FFFFFF">6 616</span><span style="font-size: 14px; color: #A8B3C4">{{t.sContracts}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; color: #FFFFFF">14 392</span><span style="font-size: 14px; color: #A8B3C4">{{t.sCompanies}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; color: #FFFFFF">120</span><span style="font-size: 14px; color: #A8B3C4">{{t.sBrokers}}</span></div>
+</div>
+</div>
+
+<div id="ask" style="flex: 1 1 480px; min-width: 0; background: #FFFFFF; color: #0B1220; border-radius: 20px; box-shadow: 0 24px 60px rgba(0,0,0,0.35); display: flex; flex-direction: column; overflow: hidden">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #E5E9EF">
+<div style="display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #14B8A6"></span>
+<span style="font-weight: 600; font-size: 16px">{{t.chatTitle}}</span>
+</div>
+<span style="font-size: 13px; color: #4B5563">{{t.chatHint}}</span>
+</div>
+
+<div aria-live="polite" style="display: flex; flex-direction: column; gap: 14px; padding: 20px; height: 360px; overflow-y: auto; background: #FAFBFC">
+<sc-for list="{{messages}}" as="m" hint-placeholder-count="2">
+<sc-if value="{{m.isUser}}" hint-placeholder-val="{{ true }}">
+<div style="align-self: flex-end; max-width: 80%; background: #0F766E; color: #FFFFFF; padding: 12px 16px; border-radius: 16px 16px 4px 16px; font-size: 15px; line-height: 1.5">{{m.text}}</div>
+</sc-if>
+<sc-if value="{{m.isBot}}" hint-placeholder-val="{{ false }}">
+<div style="align-self: flex-start; max-width: 92%; display: flex; flex-direction: column; gap: 10px; background: #FFFFFF; border: 1px solid #E5E9EF; padding: 14px 16px; border-radius: 16px 16px 16px 4px; font-size: 15px; line-height: 1.55">
+<div>{{m.text}}</div>
+<sc-if value="{{m.hasTable}}" hint-placeholder-val="{{ true }}">
+<div style="overflow-x: auto; border: 1px solid #E5E9EF; border-radius: 10px">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px">
+<thead><tr style="background: #F4F6F8; text-align: left"><th style="padding: 8px 12px; font-weight: 600">{{t.colProduct}}</th><th style="padding: 8px 12px; font-weight: 600; text-align: right">{{t.colVolume}}</th><th style="padding: 8px 12px; font-weight: 600; text-align: right">{{t.colSum}}</th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+<tr style="border-top: 1px solid #E5E9EF"><td style="padding: 8px 12px">{{r.p}}</td><td style="padding: 8px 12px; text-align: right; font-family: 'IBM Plex Mono', monospace; color: #4B5563">[—]</td><td style="padding: 8px 12px; text-align: right; font-family: 'IBM Plex Mono', monospace; color: #4B5563">[—]</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="font-size: 13px; color: #4B5563">{{t.demoNote}}</div>
+</sc-if>
+</div>
+</sc-if>
+</sc-for>
+<sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+<div style="align-self: flex-start; font-size: 14px; color: #4B5563; padding: 6px 4px">{{t.typing}}</div>
+</sc-if>
+</div>
+
+<form onSubmit="{{send}}" style="display: flex; flex-direction: column; gap: 12px; padding: 16px 20px 20px; border-top: 1px solid #E5E9EF">
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="4">
+<button type="button" onClick="{{c.pick}}" style="min-height: 36px; padding: 0 12px; border: 1px solid #D5DCE5; border-radius: 999px; background: #FFFFFF; color: #1F2937; font: inherit; font-size: 13px; cursor: pointer">{{c.label}}</button>
+</sc-for>
+</div>
+<div style="display: flex; gap: 10px">
+<label for="ask-input" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">{{t.inputLabel}}</label>
+<input id="ask-input" type="text" value="{{input}}" onChange="{{onInput}}" placeholder="{{t.placeholder}}" style="flex: 1 1 auto; min-width: 0; min-height: 48px; padding: 0 16px; border: 1px solid #C7D0DB; border-radius: 12px; font: inherit; font-size: 15px; color: #0B1220; background: #FFFFFF">
+<button type="submit" aria-label="{{t.send}}" style="flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border: 0; border-radius: 12px; background: #0B1220; color: #FFFFFF; font: inherit; font-weight: 600; font-size: 15px; cursor: pointer">
+<span>{{t.send}}</span>
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
+</button>
+</div>
+</form>
+</div>
+
+</div>
+</section>
+
+<section id="features" style="padding: 96px 0 40px">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 40px">
+<h2 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 34px; letter-spacing: -0.01em">{{t.featTitle}}</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 20px">
+<sc-for list="{{features}}" as="f" hint-placeholder-count="4">
+<div style="flex: 1 1 250px; min-width: 0; background: #FFFFFF; border: 1px solid #E1E6ED; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 12px">
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #0F766E">{{f.n}}</span>
+<h3 style="margin: 0; font-size: 19px; font-weight: 600; line-height: 1.35">{{f.title}}</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #4B5563">{{f.body}}</p>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section id="how" style="padding: 56px 0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 40px">
+<h2 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 34px; letter-spacing: -0.01em">{{t.howTitle}}</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 0; border-top: 2px solid #0B1220">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="3">
+<div style="flex: 1 1 300px; min-width: 0; padding: 28px 28px 8px 0; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 40px; color: #0F766E">{{s.n}}</span>
+<h3 style="margin: 0; font-size: 20px; font-weight: 600">{{s.title}}</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #4B5563; max-width: 340px">{{s.body}}</p>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section id="data" style="padding: 56px 0 96px">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; flex-wrap: wrap; gap: 48px">
+<div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 34px; letter-spacing: -0.01em">{{t.dataTitle}}</h2>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #4B5563">{{t.dataSub}}</p>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #92400E; background: #FEF3C7; border-radius: 10px; padding: 12px 14px">{{t.fictional}}</p>
+</div>
+<div style="flex: 2 1 520px; min-width: 0; background: #FFFFFF; border: 1px solid #E1E6ED; border-radius: 16px; overflow: hidden">
+<sc-for list="{{files}}" as="d" hint-placeholder-count="5">
+<div style="display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; padding: 18px 24px; border-bottom: 1px solid #EEF1F5">
+<span style="flex: 0 0 210px; font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #0F766E">{{d.file}}</span>
+<span style="flex: 1 1 240px; min-width: 0; font-size: 15px; line-height: 1.5">{{d.desc}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="padding: 0 24px 96px">
+<div style="max-width: 1200px; margin: 0 auto; background: #0F766E; color: #FFFFFF; border-radius: 24px; padding: 56px 48px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px">
+<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 30px; line-height: 1.2">{{t.ctaTitle}}</h2>
+<p style="margin: 0; font-size: 16px; color: #D1FAF5">{{t.ctaSub}}</p>
+</div>
+<a href="#ask" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; border-radius: 12px; background: #FFFFFF; color: #0B1220; font-weight: 600; font-size: 16px; text-decoration: none">{{t.navCta}}</a>
+</div>
+</section>
+
+<footer style="border-top: 1px solid #E1E6ED">
+<div style="max-width: 1200px; margin: 0 auto; padding: 28px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 14px; color: #4B5563">
+<span>© 2026 Birja·AI</span>
+<span>{{t.footer}}</span>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"lang":{"editor":"enum","options":["uz","ru","en"],"default":"uz"},"$preview":{"width":1440,"height":3100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { lang: null, input: '', loading: false, messages: [{ role: 'user', kind: 'demoQ' }, { role: 'bot', kind: 'demoA' }] };
+  }
+  componentWillUnmount() { if (this._timer) clearTimeout(this._timer); }
+  dict() {
+    return {
+      uz: {
+        navFeatures: 'Imkoniyatlar', navHow: 'Qanday ishlaydi', navData: 'Maʼlumotlar', navCta: 'Savol berish',
+        badge: 'Tovar-xomashyo birjasi reyestri · 2022–2026',
+        h1: 'Birja bitimlari haqida soʻrang — AI hisoblab beradi',
+        sub: 'Bitimlar, shartnomalar, kompaniyalar va brokerlar bir joyda. Savolni oddiy tilda yozing: agent bazaga soʻrov yuboradi va aniq javob qaytaradi.',
+        sDeals: 'bitim', sContracts: 'shartnoma', sCompanies: 'kompaniya', sBrokers: 'broker idorasi',
+        chatTitle: 'AI agent', chatHint: 'UZ · RU · EN',
+        demoQ: '2025-yilda hajm boʻyicha qaysi tovarlar eng koʻp sotilgan?',
+        demoA: '2025-yilda hajm boʻyicha eng koʻp sotilgan 3 ta tovar:',
+        demoNote: 'Bekor qilingan (toʻlanmagan) bitimlar hisobga olinmadi. Eksport summalari bitim sanasidagi kurs boʻyicha soʻmga oʻtkazildi.',
+        colProduct: 'Tovar', colVolume: 'Hajm', colSum: 'Summa, soʻm', product: '[Tovar nomi]',
+        pending: 'Bu yerda backend javobi chiqadi (POST /api/chat → answer).',
+        typing: 'Hisoblanmoqda…', inputLabel: 'Savolingiz', placeholder: 'Masalan: eng faol 10 ta broker kim?', send: 'Yuborish',
+        chips: ['Eng koʻp sotilgan tovar', 'Eksport hajmi viloyatlar boʻyicha', 'Bekor qilingan bitimlar ulushi', 'Eng faol brokerlar'],
+        featTitle: 'Agent nima qila oladi',
+        features: [
+          ['Hisoblaydi, taxmin qilmaydi', 'Har bir savol uchun bazaga soʻrov yuboradi va javobni haqiqiy maʼlumotdan hisoblaydi.'],
+          ['Valyutani oʻzi hisobga oladi', 'Eksport bitimlari dollarda. Agent ularni bitim sanasidagi kurs boʻyicha soʻmga oʻtkazadi.'],
+          ['Bekor qilinganlarni ajratadi', 'Toʻlanmay bekor qilingan bitimlar hajm va aylanma hisobiga kirmaydi.'],
+          ['Uch tilda javob beradi', 'Savolni oʻzbek, rus yoki ingliz tilida yozing: javob shu tilda keladi.']
+        ],
+        howTitle: 'Qanday ishlaydi',
+        steps: [
+          ['Savol yozasiz', 'Oddiy tilda, formula va filtrlarsiz.'],
+          ['Agent soʻrov tuzadi', 'Savolni SQL soʻroviga aylantiradi va uni faqat oʻqish rejimida bajaradi.'],
+          ['Javob olasiz', 'Qisqa xulosa, jadval va hisob qanday qilingani haqida izoh.']
+        ],
+        dataTitle: 'Maʼlumotlar', dataSub: 'Agent beshta jadval bilan ishlaydi. Bitim holatlari 2026-yil 30-oktabr kuni oxiridagi holatda.',
+        fictional: 'Barcha maʼlumotlar oʻylab topilgan. Haqiqiy tashkilotlar bilan oʻxshashlik tasodifiy.',
+        files: [
+          ['Bitimlar', '500 000 ta bitim, 2022-yil 3-yanvardan 2026-yil 30-oktabrgacha'],
+          ['Shartnomalar', 'Tovar va atributlari, lot, valyuta, toʻlov va yetkazish muddatlari'],
+          ['Ishtirokchilar', 'Sotuvchi va xaridor kompaniyalar'],
+          ['Brokerlar', 'Broker idoralari va ularning hududi'],
+          ['Dollar kursi', 'Har bir kalendar kun uchun, 1 USD uchun soʻm']
+        ],
+        ctaTitle: 'Birinchi savolingizni bering', ctaSub: 'Roʻyxatdan oʻtish shart emas.',
+        footer: 'Maʼlumotlar oʻylab topilgan va namuna uchun berilgan.'
+      },
+      ru: {
+        navFeatures: 'Возможности', navHow: 'Как это работает', navData: 'Данные', navCta: 'Задать вопрос',
+        badge: 'Реестр сделок товарно-сырьевой биржи · 2022–2026',
+        h1: 'Спросите о сделках биржи — AI посчитает',
+        sub: 'Сделки, контракты, компании и брокеры в одном месте. Задайте вопрос обычным языком: агент сделает запрос к базе и вернёт точный ответ.',
+        sDeals: 'сделок', sContracts: 'контрактов', sCompanies: 'компаний', sBrokers: 'брокерских контор',
+        chatTitle: 'AI-агент', chatHint: 'UZ · RU · EN',
+        demoQ: 'Какие товары в 2025 году продавались больше всего по объёму?',
+        demoA: 'Топ-3 товара по объёму продаж в 2025 году:',
+        demoNote: 'Аннулированные (неоплаченные) сделки не учтены. Экспортные суммы пересчитаны в сумы по курсу на дату сделки.',
+        colProduct: 'Товар', colVolume: 'Объём', colSum: 'Сумма, сум', product: '[Название товара]',
+        pending: 'Здесь появится ответ бэкенда (POST /api/chat → answer).',
+        typing: 'Считаю…', inputLabel: 'Ваш вопрос', placeholder: 'Например: кто 10 самых активных брокеров?', send: 'Отправить',
+        chips: ['Самый продаваемый товар', 'Экспорт по регионам', 'Доля аннулированных сделок', 'Самые активные брокеры'],
+        featTitle: 'Что умеет агент',
+        features: [
+          ['Считает, а не угадывает', 'На каждый вопрос делает запрос к базе и считает ответ по реальным данным.'],
+          ['Учитывает валюту', 'Экспортные сделки в долларах. Агент пересчитывает их в сумы по курсу на дату сделки.'],
+          ['Отделяет аннулированные', 'Неоплаченные аннулированные сделки не входят в объём и оборот.'],
+          ['Отвечает на трёх языках', 'Пишите на узбекском, русском или английском: ответ придёт на том же языке.']
+        ],
+        howTitle: 'Как это работает',
+        steps: [
+          ['Вы пишете вопрос', 'Обычным языком, без формул и фильтров.'],
+          ['Агент строит запрос', 'Превращает вопрос в SQL-запрос и выполняет его только на чтение.'],
+          ['Вы получаете ответ', 'Краткий вывод, таблица и пояснение, как считали.']
+        ],
+        dataTitle: 'Данные', dataSub: 'Агент работает с пятью таблицами. Состояния сделок на конец дня 30.10.2026.',
+        fictional: 'Все данные вымышленные. Совпадения с реальными организациями случайны.',
+        files: [
+          ['Сделки', '500 000 сделок с 3 января 2022 по 30 октября 2026'],
+          ['Контракты', 'Товар и атрибуты, лот, валюта, сроки оплаты и поставки'],
+          ['Участники', 'Компании — продавцы и покупатели'],
+          ['Брокеры', 'Брокерские конторы и их регион'],
+          ['Курс доллара', 'На каждый календарный день, сум за 1 USD']
+        ],
+        ctaTitle: 'Задайте первый вопрос', ctaSub: 'Регистрация не нужна.',
+        footer: 'Данные вымышленные и приведены для примера.'
+      },
+      en: {
+        navFeatures: 'Features', navHow: 'How it works', navData: 'Data', navCta: 'Ask a question',
+        badge: 'Commodity exchange deal registry · 2022–2026',
+        h1: 'Ask about exchange deals — AI does the math',
+        sub: 'Deals, contracts, companies and brokers in one place. Ask in plain language: the agent queries the database and returns an exact answer.',
+        sDeals: 'deals', sContracts: 'contracts', sCompanies: 'companies', sBrokers: 'brokerage firms',
+        chatTitle: 'AI agent', chatHint: 'UZ · RU · EN',
+        demoQ: 'Which products sold the most by volume in 2025?',
+        demoA: 'Top 3 products by volume sold in 2025:',
+        demoNote: 'Cancelled (unpaid) deals are excluded. Export amounts are converted to UZS at the rate on the deal date.',
+        colProduct: 'Product', colVolume: 'Volume', colSum: 'Amount, UZS', product: '[Product name]',
+        pending: 'The backend answer appears here (POST /api/chat → answer).',
+        typing: 'Calculating…', inputLabel: 'Your question', placeholder: 'For example: who are the 10 most active brokers?', send: 'Send',
+        chips: ['Best-selling product', 'Exports by region', 'Share of cancelled deals', 'Most active brokers'],
+        featTitle: 'What the agent can do',
+        features: [
+          ['Calculates, never guesses', 'Each question becomes a database query, so the answer comes from real data.'],
+          ['Handles currency', 'Export deals are in dollars. The agent converts them to UZS at the rate on the deal date.'],
+          ['Leaves out cancelled deals', 'Unpaid, cancelled deals are excluded from volume and turnover.'],
+          ['Answers in three languages', 'Ask in Uzbek, Russian or English and get the answer in the same language.']
+        ],
+        howTitle: 'How it works',
+        steps: [
+          ['You ask', 'In plain language, no formulas or filters.'],
+          ['The agent writes a query', 'It turns the question into SQL and runs it read-only.'],
+          ['You get the answer', 'A short summary, a table and a note on how it was calculated.']
+        ],
+        dataTitle: 'Data', dataSub: 'The agent works with five tables. Deal statuses are as of the end of 30 Oct 2026.',
+        fictional: 'All data is fictional. Any resemblance to real organizations is coincidental.',
+        files: [
+          ['Deals', '500,000 deals from 3 Jan 2022 to 30 Oct 2026'],
+          ['Contracts', 'Product and attributes, lot, currency, payment and delivery terms'],
+          ['Participants', 'Seller and buyer companies'],
+          ['Brokers', 'Brokerage firms and their region'],
+          ['USD rate', 'For every calendar day, UZS per 1 USD']
+        ],
+        ctaTitle: 'Ask your first question', ctaSub: 'No sign-up needed.',
+        footer: 'The data is fictional and provided as a sample.'
+      }
+    };
+  }
+  renderVals() {
+    const all = this.dict();
+    const lang = this.state.lang || this.props.lang || 'uz';
+    const t = all[lang] || all.uz;
+    const langs = [['uz', 'UZ'], ['ru', 'RU'], ['en', 'EN']].map(([code, label]) => {
+      const on = code === lang;
+      return {
+        label,
+        pressed: on ? 'true' : 'false',
+        pick: () => this.setState({ lang: code }),
+        style: 'min-width: 44px; min-height: 36px; padding: 0 10px; border: 0; border-radius: 7px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; ' + (on ? 'background: #FFFFFF; color: #0B1220;' : 'background: transparent; color: #C9D2DF;')
+      };
+    });
+    const messages = this.state.messages.map((m) => {
+      let text = m.text;
+      if (m.kind === 'demoQ') text = t.demoQ;
+      if (m.kind === 'demoA') text = t.demoA;
+      if (m.kind === 'pending') text = t.pending;
+      return { text, isUser: m.role === 'user', isBot: m.role === 'bot', hasTable: m.kind === 'demoA' };
+    });
+    const send = (e) => {
+      if (e && e.preventDefault) e.preventDefault();
+      const q = (this.state.input || '').trim();
+      if (!q || this.state.loading) return;
+      this.setState({ messages: this.state.messages.concat([{ role: 'user', text: q }]), input: '', loading: true });
+      this._timer = setTimeout(() => {
+        this.setState((s) => ({ loading: false, messages: s.messages.concat([{ role: 'bot', kind: 'pending' }]) }));
+      }, 900);
+    };
+    return {
+      t,
+      langs,
+      messages,
+      loading: this.state.loading,
+      input: this.state.input,
+      onInput: (e) => this.setState({ input: e.target.value }),
+      send,
+      rows: [{ p: t.product + ' 1' }, { p: t.product + ' 2' }, { p: t.product + ' 3' }],
+      chips: t.chips.map((label) => ({ label, pick: () => this.setState({ input: label }) })),
+      features: t.features.map(([title, body], i) => ({ n: '0' + (i + 1), title, body })),
+      steps: t.steps.map(([title, body], i) => ({ n: String(i + 1), title, body })),
+      files: t.files.map(([file, desc]) => ({ file, desc }))
+    };
+  }
+}
+</script>
+</body>
+</html>
