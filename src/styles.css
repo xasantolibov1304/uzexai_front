@@ -836,9 +836,91 @@ button:disabled {
 }
 
 .msg-meta {
+  position: relative; /* Anchors the verified tooltip to the row, so it stays inside the message on a phone. */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
   margin-top: 10px;
   color: var(--ink-soft);
   font-size: 12px;
+}
+
+.verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e5f2e9;
+  color: #1d6236;
+  font-weight: 500;
+  cursor: help;
+}
+
+.verified::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 3;
+  width: max-content;
+  max-width: min(320px, 100%);
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 400;
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.verified:hover::after,
+.verified:focus::after {
+  opacity: 1;
+}
+
+.verified:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.method-note {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.04);
+  font-size: 13px;
+}
+
+.method-note__title {
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.method-note dl {
+  margin: 0;
+}
+
+.method-note dl > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  overflow-wrap: anywhere;
+}
+
+.method-note dt {
+  color: var(--ink-soft);
+}
+
+.method-note dt::after {
+  content: ":";
+}
+
+.method-note dd {
+  margin: 0;
 }
 
 .md > :first-child {
@@ -1388,13 +1470,55 @@ button:disabled {
 }
 
 .trace__item pre {
-  overflow-x: auto;
-  margin: 8px 0 0;
+  margin: 0;
   padding: 10px 12px;
   border-radius: 10px;
   background: var(--surface);
   color: var(--ink);
   font: 12px/1.5 var(--mono);
+  /* Long queries wrap instead of widening the panel on a phone. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.trace__purpose {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+}
+
+.trace__purpose span {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.sql {
+  margin-top: 8px;
+}
+
+.sql__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.sql__copy {
+  flex: none;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.sql__copy:hover {
+  background: #f3f3f1;
 }
 
 .alert {
@@ -1545,14 +1669,13 @@ button:disabled {
   display: none;
 }
 
+/* Fade only: a vertical slide left the example below its "Masalan:" label while it played. */
 @keyframes hint-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 
@@ -1600,6 +1723,11 @@ button:disabled {
   color: var(--ink-soft);
   font-size: 12px;
   text-align: center;
+}
+
+.dock__note--full {
+  color: #8a2a1c;
+  font-weight: 500;
 }
 
 @keyframes rise {

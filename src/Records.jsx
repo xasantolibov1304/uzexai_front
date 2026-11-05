@@ -43,10 +43,9 @@ const COLUMNS = {
 
 export const hasRecords = (dataset) => Boolean(COLUMNS[dataset]);
 
-const numberFormat = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 });
 const IDENTIFIER = /(^|_)(id|inn)($|_)/;
 
-function formatValue(value, key) {
+function formatValue(value, key, t) {
   if (value == null) return "—";
   if (typeof value === "boolean") return value ? "Да" : "Нет";
   if (key.endsWith("date") && typeof value === "string") {
@@ -54,7 +53,7 @@ function formatValue(value, key) {
     const [y, m, d] = value.split("-");
     return d ? `${d}.${m}.${y}` : value;
   }
-  if (typeof value === "number" && !IDENTIFIER.test(key)) return numberFormat.format(value);
+  if (typeof value === "number" && !IDENTIFIER.test(key)) return t.num(value);
   return String(value);
 }
 
@@ -62,7 +61,7 @@ export function Pager({ total, page, pages, disabled, onPage }) {
   const { t } = useLang();
   return (
     <div className="records__pager">
-      <span>{t.recordsTotal(numberFormat.format(total))}</span>
+      <span>{t.recordsTotal(total)}</span>
       <div>
         <button
           type="button"
@@ -74,7 +73,7 @@ export function Pager({ total, page, pages, disabled, onPage }) {
           ‹
         </button>
         <span>
-          {numberFormat.format(page)} / {numberFormat.format(pages)}
+          {t.num(page)} / {t.num(pages)}
         </span>
         <button
           type="button"
@@ -111,8 +110,10 @@ export default function Records({ dataset }) {
         setResult(data);
         setStatus("ready");
       })
-      .catch(() => {
-        if (!controller.signal.aborted) setStatus("error");
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        console.error("[records] load failed", { dataset, page, error: err });
+        setStatus("error");
       });
     return () => controller.abort();
   }, [dataset, page, rows, attempt]);
@@ -145,7 +146,7 @@ export default function Records({ dataset }) {
                 {result.items.slice(0, rows).map((item, i) => (
                   <tr key={i}>
                     {columns.map(([key]) => (
-                      <td key={key}>{formatValue(item[key], key)}</td>
+                      <td key={key}>{formatValue(item[key], key, t)}</td>
                     ))}
                   </tr>
                 ))}

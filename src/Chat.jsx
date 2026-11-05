@@ -31,14 +31,25 @@ const MD_COMPONENTS = {
   a: ({ node, ...props }) => <a {...props} target="_blank" rel="noreferrer noopener" />,
 };
 
-function errorText(err, t) {
-  if (!(err instanceof ApiError)) return err?.message || t.error;
-  if (err.status === 0) return err.detail === "timeout" ? t.timeout : t.network;
-  if (err.status === 401) return t.unauthorized;
-  if (err.status === 502) return t.err502;
-  if (err.status === 503) return t.unavailable;
-  return err.message || t.error;
+const ERROR_KINDS = ["question_too_long", "rate_limited", "server_error", "unavailable", "timeout", "network"];
+
+// Picks which plain message to show. The backend's code wins; the status is a fallback for older responses.
+// Raw backend text never reaches the screen.
+function errorKind(err) {
+  if (!(err instanceof ApiError)) return "unknown";
+  if (err.code) return ERROR_KINDS.includes(err.code) ? err.code : "unknown";
+  if (err.status === 429) return "rate_limited";
+  if (err.status === 503) return "unavailable";
+  if (err.status === 504) return "timeout";
+  if (err.status === 422 && /question/i.test(JSON.stringify(err.detail))) return "question_too_long";
+  if (err.status === 401 || err.status >= 500) return "server_error";
+  return "unknown";
 }
+
+const NO_RETRY = new Set(["question_too_long", "unavailable"]);
+
+// The character counter appears from this length.
+const COUNTER_FROM = MAX_LENGTH * 0.8;
 
 export default function Chat() {
   const { t, lang, setLang } = useLang();
@@ -70,7 +81,13 @@ export default function Chat() {
         setMessages(
           session.messages.flatMap((m) => [
             { id: newId(), role: "user", text: m.question },
-            { id: newId(), role: "bot", text: m.answer },
+            {
+              id: newId(),
+              role: "bot",
+              text: m.answer,
+              methodNote: m.method_note,
+              verified: m.verified === true,
+            },
           ])
         );
       })
@@ -131,11 +148,21 @@ export default function Chat() {
             toolCalls: res.tool_calls,
             duration: res.duration_sec,
             trace: res.trace,
+            methodNote: res.method_note,
+            // Only the backend decides this; the frontend never infers it.
+            verified: res.verified === true,
           },
         ]);
       } catch (err) {
         if (controller.signal.aborted && !(err instanceof ApiError)) return;
-        if (err instanceof ApiError && err.status === 503) setDisabled(true);
+        console.error("[chat] request failed", {
+          status: err?.status,
+          code: err?.code,
+          requestId: err?.requestId,
+          detail: err?.detail,
+          error: err,
+        });
+        if (errorKind(err) === "unavailable") setDisabled(true);
         setMessages((prev) => [...prev, { id: newId(), role: "error", question, error: err }]);
       } finally {
         setSending(false);
@@ -323,6 +350,7 @@ export default function Chat() {
               disabled={disabled}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={onKeyDown}
+              aria-describedby={draft.length > COUNTER_FROM ? "ask-count" : undefined}
             />
             {!draft && (
               <>
@@ -361,8 +389,12 @@ export default function Chat() {
             </svg>
           </button>
         </form>
-        {draft.length > MAX_LENGTH * 0.8 && (
-          <div className="dock__note">
+        {draft.length > COUNTER_FROM && (
+          <div
+            id="ask-count"
+            className={`dock__note${draft.length >= MAX_LENGTH ? " dock__note--full" : ""}`}
+            aria-live="polite"
+          >
             {draft.length} / {MAX_LENGTH}
           </div>
         )}
@@ -401,7 +433,13 @@ function BotMessage({ msg, selected, onSelect, onProgress }) {
       {done && (
         <div className="msg-after">
           <AnswerChart steps={msg.trace} answer={msg.text} />
-          {msg.toolCalls != null && <div className="msg-meta">{t.meta(msg.toolCalls, msg.duration)}</div>}
+          <MethodNote note={msg.methodNote} />
+          {(msg.toolCalls != null || msg.verified) && (
+            <div className="msg-meta">
+              {msg.toolCalls != null && <span>{t.meta(msg.toolCalls, msg.duration)}</span>}
+              {msg.verified && <VerifiedMark />}
+            </div>
+          )}
           <Sources steps={msg.trace} selected={selected} onSelect={onSelect} />
         </div>
       )}
@@ -409,21 +447,50 @@ function BotMessage({ msg, selected, onSelect, onProgress }) {
   );
 }
 
+const METHOD_FIELDS = ["period", "cancelled_handling", "currency"];
+
+// The backend's note on how the figures were counted. Missing or empty fields are left out.
+function MethodNote({ note }) {
+  const { t } = useLang();
+  if (!note || typeof note !== "object") return null;
+  const fields = METHOD_FIELDS.filter((k) => note[k] != null && String(note[k]).trim() !== "");
+  if (fields.length === 0) return null;
+  return (
+    <section className="method-note" aria-label={t.methodTitle}>
+      <div className="method-note__title">{t.methodTitle}</div>
+      <dl>
+        {fields.map((k) => (
+          <div key={k}>
+            <dt>{t.methodFields[k]}</dt>
+            <dd>{String(note[k])}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+// Focusable so the explanation also opens with a tap or the keyboard, not only on hover.
+function VerifiedMark() {
+  const { t } = useLang();
+  return (
+    <span className="verified" tabIndex={0} data-tip={t.verifiedTip}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M5 12.5 10 17 19 7" />
+      </svg>
+      {t.verified}
+      <span className="sr-only">. {t.verifiedTip}</span>
+    </span>
+  );
+}
+
 function ErrorMessage({ msg, onRetry }) {
   const { t } = useLang();
-  const { error } = msg;
-  const isApi = error instanceof ApiError;
+  const kind = errorKind(msg.error);
   return (
     <div className="alert alert--error" role="alert">
-      <div>
-        {errorText(error, t)}
-        {isApi && error.requestId && (
-          <small>
-            {t.requestId}: {error.requestId}
-          </small>
-        )}
-      </div>
-      {!(isApi && error.status === 503) && (
+      <div>{t.errors[kind]}</div>
+      {!NO_RETRY.has(kind) && (
         <button type="button" className="alert__action" onClick={onRetry}>
           {t.retry}
         </button>

@@ -5,12 +5,14 @@ const SESSION_KEY = "uzex_session";
 export const isMock = new URLSearchParams(window.location.search).has("mock");
 
 export class ApiError extends Error {
-  constructor(status, detail, requestId) {
+  // code: the backend's {error: {code}}, or "timeout" / "network" when no response arrived.
+  constructor(status, detail, requestId, code) {
     super(ApiError.describe(status, detail));
     this.name = "ApiError";
     this.status = status;
     this.detail = detail;
     this.requestId = requestId || null;
+    this.code = typeof code === "string" ? code : null;
   }
 
   static describe(status, detail) {
@@ -43,11 +45,14 @@ async function request(path, { method = "GET", body, signal, timeoutMs = 30000 }
       });
     } catch (err) {
       if (!timedOut && signal?.aborted) throw err;
-      throw new ApiError(0, timedOut ? "timeout" : "network", null);
+      const kind = timedOut ? "timeout" : "network";
+      throw new ApiError(0, kind, null, kind);
     }
     if (res.status === 204) return undefined;
     const data = await res.json().catch(() => null);
-    if (!res.ok) throw new ApiError(res.status, data?.detail ?? data, res.headers.get("X-Request-ID"));
+    if (!res.ok) {
+      throw new ApiError(res.status, data?.detail ?? data, res.headers.get("X-Request-ID"), data?.error?.code);
+    }
     return data;
   } finally {
     clearTimeout(timer);
@@ -98,8 +103,8 @@ const ANSWER_RULES =
   "The app draws charts by itself from your last query's rows. Never draw a chart, graph or diagram in text, and use no emoji. " +
   "If asked for a chart, run one query with all the data, sorted, with one row per period or item, and write a short summary without repeating every row.]\n\n";
 
-// The backend accepts 2000 characters including the rules above.
-export const MAX_QUESTION_LENGTH = 2000 - ANSWER_RULES.length;
+// The backend's limit for a question.
+export const MAX_QUESTION_LENGTH = 2000;
 
 const getSession = () => sessionStorage.getItem(SESSION_KEY);
 const setSession = (id) =>

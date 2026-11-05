@@ -20,12 +20,29 @@ const SOURCE_FILES = {
 
 // Identifiers must stay exact: "2 024" or a spaced-out STIR would be wrong.
 const IDENTIFIER_COLUMN = /(^|_)(inn|stir|id|code|year|month|date)($|_)/i;
-const numberFormat = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 });
-
-function formatCell(value, column) {
+function formatCell(value, column, t) {
   if (value == null) return "—";
-  if (typeof value === "number" && !IDENTIFIER_COLUMN.test(column)) return numberFormat.format(value);
+  if (typeof value === "number" && !IDENTIFIER_COLUMN.test(column)) return t.num(value);
   return String(value);
+}
+
+// Column names come from the agent's SQL. Known ones get an interface-language header, with suffixes such as
+// _uzs, _usd, _uz or a year read off the end; anything unknown keeps its own name rather than a guess.
+const COLUMN_SUFFIX = /_(uzs|usd|uz|ru|pct|\d{4})$/i;
+
+function columnLabel(column, t) {
+  let core = String(column).toLowerCase();
+  const notes = [];
+  let match;
+  while (!t.columns[core] && (match = core.match(COLUMN_SUFFIX))) {
+    const suffix = match[1];
+    notes.unshift(/^\d{4}$/.test(suffix) ? suffix : t.columnSuffixes[suffix]);
+    core = core.slice(0, -match[0].length);
+  }
+  if (!t.columns[core]) return column;
+  const years = notes.filter((n) => /^\d{4}$/.test(n));
+  const others = notes.filter((n) => !/^\d{4}$/.test(n));
+  return [t.columns[core], ...years].join(" ") + (others.length ? ` (${others.join(", ")})` : "");
 }
 
 // Only known tables become labels; CTE names and "EXTRACT(year FROM x)" must not.
@@ -60,14 +77,55 @@ function stepTitle(step, t) {
   return labels.length > 0 ? `${t.query}: ${labels.join(", ")}` : t.query;
 }
 
+// The query as the agent ran it. Copy falls back to selecting the text where the clipboard API is blocked.
+function SqlBlock({ sql }) {
+  const { t } = useLang();
+  const preRef = useRef(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!copied) return undefined;
+    const id = setTimeout(() => setCopied(false), 1500);
+    return () => clearTimeout(id);
+  }, [copied]);
+
+  const selectText = () => {
+    const range = document.createRange();
+    range.selectNodeContents(preRef.current);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
+  const copy = () => {
+    if (!navigator.clipboard) return selectText();
+    navigator.clipboard.writeText(sql).then(() => setCopied(true), selectText);
+  };
+
+  return (
+    <div className="sql">
+      <div className="sql__head">
+        <span>{t.sqlLabel}</span>
+        <button type="button" className="sql__copy" onClick={copy} aria-live="polite">
+          {copied ? t.copied : t.copy}
+        </button>
+      </div>
+      <pre ref={preRef}>{sql}</pre>
+    </div>
+  );
+}
+
 function ResultTable({ table, rows = table.rows }) {
+  const { t } = useLang();
   return (
     <div className="trace__table">
       <table>
         <thead>
           <tr>
             {table.columns.map((c) => (
-              <th key={c}>{c}</th>
+              <th key={c} title={c}>
+                {columnLabel(c, t)}
+              </th>
             ))}
           </tr>
         </thead>
@@ -75,7 +133,7 @@ function ResultTable({ table, rows = table.rows }) {
           {rows.map((row, i) => (
             <tr key={i}>
               {row.map((cell, j) => (
-                <td key={j}>{formatCell(cell, table.columns[j])}</td>
+                <td key={j}>{formatCell(cell, table.columns[j], t)}</td>
               ))}
             </tr>
           ))}
@@ -241,11 +299,21 @@ export default function Sources({ steps, selected, onSelect }) {
             <div key={i} className="trace__item">
               <div>
                 <b>{i + 1}.</b> {stepTitle(step, t)}
-                {step.row_count != null && <span className="trace__rows"> · {step.row_count} {t.rows}</span>}
+                {step.row_count != null && <span className="trace__rows"> · {t.rows(step.row_count)}</span>}
                 {step.result?.truncated && <span className="trace__rows"> · {t.truncated}</span>}
               </div>
+              {step.args?.sql && (
+                <>
+                  {step.args.purpose && (
+                    <p className="trace__purpose">
+                      <span>{t.purpose}:</span> {String(step.args.purpose)}
+                    </p>
+                  )}
+                  <SqlBlock sql={String(step.args.sql)} />
+                </>
+              )}
               {table && <ResultTable table={table} />}
-              {step.error && <div className="alert alert--error">{step.error}</div>}
+              {step.error && <div className="alert alert--error">{t.stepFailed}</div>}
             </div>
           );
         })}

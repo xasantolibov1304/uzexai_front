@@ -11,8 +11,7 @@ const PLOT = { top: 22, right: 16, bottom: 26, left: 58 };
 const END_LABEL_MIN_GAP = 16;
 const MULTI_LABEL_MIN_WIDTH = 400;
 
-const exactFormat = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 });
-const exact = (value) => (value == null ? "—" : exactFormat.format(value));
+const exact = (value, t) => (value == null ? "—" : t.num(value));
 
 function compact(value, t) {
   const abs = Math.abs(value);
@@ -23,10 +22,10 @@ function compact(value, t) {
     [1e3, t.chartUnits.thousand],
   ];
   const step = steps.find(([size]) => abs >= size);
-  if (!step) return exactFormat.format(value);
+  if (!step) return t.num(value);
   const scaled = value / step[0];
   const digits = Math.abs(scaled) >= 100 ? 0 : 1;
-  return `${new Intl.NumberFormat("ru-RU", { maximumFractionDigits: digits }).format(scaled)} ${step[1]}`;
+  return `${t.num(scaled, digits)} ${step[1]}`;
 }
 
 // Month numbers read as names: 2024 and 2025 share the same "Yan ... Dek" axis.
@@ -84,7 +83,7 @@ function BarChart({ chart }) {
       rows: chart.series.map((s, i) => ({
         name: grouped ? s.name : "",
         color: grouped ? SERIES_COLORS[i] : null,
-        value: exact(s.points[index].value),
+        value: exact(s.points[index].value, t),
       })),
     });
   };
@@ -96,7 +95,7 @@ function BarChart({ chart }) {
           key={label}
           className="chart__row"
           tabIndex={0}
-          aria-label={`${label}: ${chart.series.map((s) => `${grouped ? `${s.name} ` : ""}${exact(s.points[index].value)}`).join(", ")}`}
+          aria-label={`${label}: ${chart.series.map((s) => `${grouped ? `${s.name} ` : ""}${exact(s.points[index].value, t)}`).join(", ")}`}
           onPointerMove={(e) => show(e, label, index)}
           onFocus={(e) => show(e, label, index)}
           onBlur={() => setTip(null)}
@@ -213,7 +212,7 @@ function LineChart({ chart }) {
           rows: series.map((s, i) => ({
             name: multiple ? s.name : "",
             color: multiple ? SERIES_COLORS[i] : null,
-            value: exact(s.points[active].value),
+            value: exact(s.points[active].value, t),
           })),
         }
       : null;
@@ -223,7 +222,7 @@ function LineChart({ chart }) {
       const known = s.points.filter((p) => p.value != null);
       const first = known[0];
       const final = known[known.length - 1];
-      return `${multiple ? `${s.name}: ` : ""}${timeLabel(first.label, chart.timeKind, t)} ${exact(first.value)}, ${timeLabel(final.label, chart.timeKind, t)} ${exact(final.value)}`;
+      return `${multiple ? `${s.name}: ` : ""}${timeLabel(first.label, chart.timeKind, t)} ${exact(first.value, t)}, ${timeLabel(final.label, chart.timeKind, t)} ${exact(final.value, t)}`;
     })
     .join("; ");
 
@@ -311,7 +310,7 @@ function ChartTable({ chart }) {
             <tr key={point.label}>
               <td>{chart.type === "line" ? timeLabel(point.label, chart.timeKind, t) : point.label}</td>
               {chart.series.map((s) => (
-                <td key={s.name}>{exact(s.points[i].value)}</td>
+                <td key={s.name}>{exact(s.points[i].value, t)}</td>
               ))}
             </tr>
           ))}
