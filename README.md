@@ -34,36 +34,22 @@ backend uxlab qolsa birinchi so'rov sekin bo'ladi.
 
 ## Sahifalar
 
-| Yo'l | Nima | Endpoint'lar |
-|---|---|---|
-| `/` | Landing + ixcham AI-chat | `/health`, `POST /chat` |
-| `/chat` | To'liq AI-chat ("Qanday hisoblandi?" — trace) | `POST /chat`, `GET/DELETE /chat/sessions/{id}` |
-| `/dashboard` | KPI, oylik/yillik aylanma, top tovar/region/kompaniya/broker | `/deals/stats` |
-| `/deals` | Bitimlar jadvali, filtrlar (URL'da saqlanadi), saralash, sahifalash | `/deals`, `/reference`, `/products`, `/products/{name}` |
-| `/deals/:id` | Bitim kartochkasi, to'lov/yetkazish vaqt chizig'i | `/deals/{id}` |
-| `/products`, `/products/:name` | Katalog; narx dinamikasi variant bo'yicha | `/products*`, `/deals/stats` |
-| `/participants`, `/participants/:inn` | Kompaniyalar, kartochka, top tovar/kontragentlar | `/participants*`, `/deals`, `/deals/stats` |
-| `/brokers`, `/brokers/:code` | Brokerlar | `/brokers*`, `/deals`, `/deals/stats` |
-| header | Global qidiruv (300 ms debounce, ≥ 2 belgi) | `/search` |
+Faqat bitta sahifa: AI-chat. Istalgan yo'l chatni ochadi.
+
+Endpoint'lar: `/health`, `POST /api/v1/chat`, `GET/DELETE /api/v1/chat/sessions/{id}`.
 
 ## Tuzilma
 
 ```
 src/
-  api/        client.js (fetch + ApiError + timeout), endpoints.js, chat.js (sessiya, 404 → yangi sessiya), hooks.js (TanStack Query kesh)
-  i18n/       dict.js (uz/ru/en matnlar + API qiymatlari tarjimasi), LangContext.jsx
-  lib/        format.js (raqam, summa, sana DD.MM.YYYY)
-  components/ Layout, GlobalSearch, ChatPanel, Markdown (GFM + sanitize), Charts (Recharts), DealsTable, ui
-  pages/      har bir yo'l uchun sahifa
-design-reference/  dizayn maketi (Main.dc.html) — ranglar, shriftlar, landing matnlari shundan olingan
+  main.jsx    kirish nuqtasi
+  Chat.jsx    chat sahifasi (bo'sh holat kartalari, suhbat, kiritish maydoni)
+  api.js      fetch + ApiError + timeout, sessiya (404 → yangi sessiya)
+  i18n.jsx    uz/ru/en matnlar, LangProvider
+  styles.css  barcha uslublar
 ```
 
 ## API qoidalari qanday hisobga olingan
 
-- Filtr qiymatlari (holat, auksion, kategoriya…) `/reference` dan olinadi va API'ga **ruscha asl holida** yuboriladi; ekranda tanlangan tilga tarjima qilinadi.
-- Turli valyutadagi `amount` qo'shilmaydi — jami summalar `amount_uzs` / `amount_usd` dan.
-- `units_mixed: true` bo'lsa hajm/narx "—" / "turli birliklar".
-- Narx grafigi `product_variant` bo'yicha chiziladi; 2026 — to'liq bo'lmagan yil sifatida belgilanadi.
 - Chat: 120 s timeout, bir vaqtda bitta savol, 404 → `session_id: null` bilan qayta yuborish va "yangi suhbat" xabari, 502 → "Qayta urinish", 503 / `agent_available: false` → chat o'chiq.
 - Xatolarda `X-Request-ID` ko'rsatiladi.
-- `/reference`, `/products`, `/brokers` — cheksiz kesh; `/deals`, `/deals/stats` — parametrlar bo'yicha 6 soat; `/chat` keshlanmaydi.
